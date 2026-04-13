@@ -1,0 +1,287 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UNIVPM • Maintenance</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 20px;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 12px;
+    }
+    
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5em;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #666;
+    }
+    
+    .modal-close:hover {
+      color: #333;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+    
+    .office-selector-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+    }
+    
+    .office-selector-container label {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .office-selector-container select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: white;
+      cursor: pointer;
+    }
+    
+    .office-selector-container select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container header-grid">
+      <img src="/static/img/univpm-logo.svg" alt="UNIVPM" class="logo" />
+      <h1 class="brand">UNIVPM • Maintenance</h1>
+      <nav><a href="/" class="btn-outline">Chat</a></nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- GESTIONE UFFICI -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Gestione Uffici</h2>
+        <button id="createOfficeBtn" class="btn">Crea nuovo ufficio</button>
+      </div>
+      <div id="officesList" class="list"></div>
+    </section>
+
+    <!-- MODAL PER CREARE/MODIFICARE UFFICIO -->
+    <div id="officeModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="officeModalTitle">Crea nuovo ufficio</h2>
+          <button id="closeOfficeModalBtn" class="modal-close">&times;</button>
+        </div>
+        <div class="form-group">
+          <label for="officeId">ID Ufficio *</label>
+          <input type="text" id="officeId" placeholder="es. marketing, risorse_umane" />
+        </div>
+        <div class="form-group">
+          <label for="officeName">Nome Ufficio *</label>
+          <input type="text" id="officeName" placeholder="es. Ufficio Marketing" />
+        </div>
+        <div class="form-group">
+          <label for="officeDescription">Descrizione</label>
+          <textarea id="officeDescription" placeholder="Descrizione dell'ufficio..."></textarea>
+        </div>
+        <div id="officeMsg" class="muted"></div>
+        <div class="modal-buttons">
+          <button id="closeOfficeModalBtn2" class="btn-outline" onclick="closeOfficeModal()">Annulla</button>
+          <button id="saveOfficeBtn" class="btn">Salva</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SELEZIONE UFFICIO PER OPERAZIONI -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Operazioni per Ufficio</h2>
+      </div>
+      <div class="office-selector-container">
+        <label for="adminOfficeSelector">Seleziona ufficio:</label>
+        <select id="adminOfficeSelector">
+          <option value="">Caricamento...</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- SELEZIONE MODELLO OLLAMA -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Selezione modello Ollama</h2>
+        <div>
+          <button id="refreshModels" class="btn-outline">Rileva modelli</button>
+          <button id="refreshPS" class="btn-outline">Processi attivi</button>
+          <button id="stopPrev" class="btn-danger">Stop LLM selezionato</button>
+        </div>
+      </div>
+      <div id="selectionStatus" class="muted"></div>
+      <div class="info-grid" id="configInfo"></div>
+      <h3>LLM disponibili</h3>
+      <div class="list" id="llmList"></div>
+      <h3 style="margin-top:16px">Modelli di embedding</h3>
+      <div class="list" id="embedList"></div>
+      <div style="margin-top:12px; display:flex; gap:12px;">
+        <button class="btn" id="saveSelection">Salva e avvia</button>
+        <button class="btn-outline" id="testSelection">Test rapido LLM</button>
+      </div>
+      <div id="psBox" class="muted" style="margin-top:10px"></div>
+    </section>
+
+    <!-- PARAMETRI DI SISTEMA -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Parametri di sistema</h2>
+      </div>
+      <div class="controls">
+        <label>Temperature <input type="number" id="rt_temperature" step="0.1" min="0" max="2" /></label>
+        <label>Top-K <input type="number" id="rt_topk" min="1" max="50" /></label>
+        <label>Chunk size <input type="number" id="rt_chunksize" min="200" max="8000" /></label>
+        <label>Chunk overlap <input type="number" id="rt_overlap" min="0" max="2000" /></label>
+        <button id="rt_save" class="btn">Salva parametri</button>
+      </div>
+      <div id="rt_msg" class="muted"></div>
+    </section>
+
+    <!-- PARAMETRI DI RISPOSTA -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Parametri di risposta</h2>
+      </div>
+      <div class="controls">
+        <label>Max caratteri risposta <input type="number" id="rt_maxchars" min="200" max="200000" /></label>
+        <label>Max secondi risposta <input type="number" id="rt_maxsecs" min="5" max="600" /></label>
+        <button id="rt_response_save" class="btn">Salva parametri risposta</button>
+      </div>
+      <div id="rt_response_msg" class="muted"></div>
+    </section>
+
+    <!-- SYSTEM PROMPT -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>System Prompt dell'LLM</h2>
+      </div>
+      <p class="muted">Personalizza il comportamento dell'assistente modificando il prompt di sistema.</p>
+      <textarea id="rt_systemprompt" style="width:100%;min-height:200px;padding:10px;font-family:monospace;border:1px solid #ddd;border-radius:4px;resize:vertical;"></textarea>
+      <div style="margin-top:12px;">
+        <button id="rt_systemprompt_save" class="btn">Salva System Prompt</button>
+        <button id="rt_systemprompt_reset" class="btn-outline">Ripristina default</button>
+      </div>
+      <div id="rt_systemprompt_msg" class="muted" style="margin-top:10px;"></div>
+    </section>
+
+    <!-- DOCUMENTI INDICIZZATI -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Documenti indicizzati</h2>
+        <div>
+          <button id="refreshDocs" class="btn-outline">Aggiorna elenco</button>
+          <button id="wipeIndex" class="btn-danger">Svuota indice</button>
+        </div>
+      </div>
+      <div id="docsList" class="list"></div>
+    </section>
+
+    <!-- INDICIZZA NUOVI PDF -->
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Indicizza nuovi PDF</h2>
+      </div>
+      <p class="muted">Trascina oppure seleziona i PDF con testo selezionabile. Restano in locale.</p>
+      <form id="ingestForm" class="ingest">
+        <input type="file" id="pdfs" multiple accept="application/pdf" />
+        <button class="btn" type="submit">Indicizza</button>
+      </form>
+      <div id="ingestMsg" class="muted"></div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <small>UNIVPM • Prototipo offline • Nessun dato lascia il server</small>
+  </footer>
+
+  <script src="/static/js/admin_multi.js"></script>
+</body>
+</html>

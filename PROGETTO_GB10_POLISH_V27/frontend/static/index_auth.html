@@ -1,0 +1,132 @@
+
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UNIVPM • Chatbot</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <style>
+    .header-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: #666;
+      padding: 8px 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+    }
+
+    .logout-btn {
+      padding: 8px 16px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #c82333;
+    }
+
+    .office-selector-container {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+      padding: 12px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+    }
+    
+    .office-selector-container label {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .office-selector-container select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      background-color: white;
+      cursor: pointer;
+    }
+    
+    .office-selector-container select:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+    }
+
+    .office-change-warning {
+      padding: 12px;
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+      border-radius: 4px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .office-change-warning.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container header-grid">
+      <img src="/static/img/univpm-logo.svg" alt="UNIVPM" class="logo" />
+      <h1 class="brand">UNIVPM • Chatbot</h1>
+      <nav class="header-right">
+        <div id="userInfo" class="user-info"></div>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+        <a href="/admin" class="btn-outline">Maintenance</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Conversazione</h2>
+      </div>
+      
+      <div class="office-change-warning" id="officeChangeWarning">
+        ⚠️ Cambiando ufficio verrai reindirizzato alla pagina di login per motivi di sicurezza.
+      </div>
+      
+      <div class="office-selector-container">
+        <label for="officeSelector">Ufficio Corrente:</label>
+        <select id="officeSelector">
+          <option value="">Caricamento...</option>
+        </select>
+      </div>
+      
+      <div id="alert" class="muted"></div>
+      <div id="chat" class="chat"></div>
+      <form id="chatForm" class="chat-input">
+        <textarea id="prompt" rows="3" placeholder="Scrivi la tua domanda sui regolamenti interni..."></textarea>
+        <button class="btn" type="submit">Invia</button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <small>UNIVPM • Prototipo offline • Nessun dato lascia il server</small>
+  </footer>
+
+  <script src="/static/js/chat_auth.js"></script>
+</body>
+</html>
